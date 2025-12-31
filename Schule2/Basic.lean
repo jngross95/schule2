@@ -234,7 +234,7 @@ constructor
 example (P Q : Prop) (p : P) (q : Q) : P ∧ Q:= by
 constructor
 · apply p
-apply q
+· apply q
 
 example (P Q : Prop) (h : P ∧ Q) :  Q := by
 obtain ⟨_, h2⟩ := h
@@ -248,7 +248,7 @@ apply h
 example (P Q : Prop) (h0 : ¬P) (h : P ∨ Q) :  Q := by
 obtain h1|h2 := h
 · contradiction
-apply h2
+· apply h2
 
 ----------  implies -->
 
@@ -274,13 +274,13 @@ apply h
 example (P Q : Prop) (h1 : P → Q) (h2 : Q → P) : P ↔ Q:= by
 constructor
 · apply h1
-apply h2
+· apply h2
 
 example (P Q : Prop) (h : P ↔ Q) : (P → Q) ∧ (Q → P) := by
 obtain ⟨h1, h2⟩ := h
 constructor
 · apply h1
-apply h2
+· apply h2
 
 
 ---------------  exists /forall
