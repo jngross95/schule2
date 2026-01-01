@@ -53,14 +53,6 @@ theorem add_succ (m n : MyNat) : m + succ n = succ (m + n) := by
   rfl
 
 theorem zero_add (m : MyNat) : 0 + m = m := by
-  induction m with
-    | zero =>
-      rfl
-    | succ d hd =>
-      rw [add_succ]
-      rw [hd]
-
-theorem zero_add2 (m : MyNat) : 0 + m = m := by
   apply mynat_induction (P := fun m => 0 + m = m)
   · rfl
   · intro m ia
@@ -101,5 +93,5 @@ instance : Std.Commutative (α := MyNat) (· + ·) where
   comm := add_comm
 
 
-example (a b c : MyNat) : (a + (b + c)) = ((a + b) + c) := by
+example (a b c : MyNat) : a + (b + c) = (a + b) + c := by
   ac_rfl
