@@ -1,14 +1,19 @@
-
-
 inductive MyNat where
   | zero : MyNat
   | succ : MyNat → MyNat
 
 open MyNat
 
-def axiom1 : MyNat := zero
+instance : Zero MyNat where
+  zero := zero
 
-def axiom2 (n : MyNat) : MyNat := succ n
+--axiom1
+theorem zero_mynat : zero = (0: MyNat) := by
+  rfl
+
+--axiom2
+theorem succ_my_nat (n : MyNat) : ∃m, m = succ n := by
+ exact ⟨succ n, rfl⟩
 
 --axiom3
 theorem zero_not_succ (n : MyNat) : succ n ≠ zero := by
@@ -21,9 +26,6 @@ theorem succ_injective (m n : MyNat) :
   intro h
   cases h
   rfl
-
-instance : Zero MyNat where
-  zero := zero
 
 --axiom5
 theorem mynat_induction
@@ -58,10 +60,16 @@ theorem zero_add (m : MyNat) : 0 + m = m := by
       rw [add_succ]
       rw [hd]
 
+theorem zero_add2 (m : MyNat) : 0 + m = m := by
+  apply mynat_induction (P := fun m => 0 + m = m)
+  · rfl
+  · intro m ia
+    rw [add_succ]
+    rw [ia]
 
 theorem succ_add (m n : MyNat) : succ m + n = succ (m + n) := by
   apply mynat_induction (P := fun n => succ m + n = succ (m + n))
-  · simp [add_zero]
+  · repeat rw [add_zero]
   · intro d hd
     rw [add_succ]
     rw [hd]
@@ -69,14 +77,13 @@ theorem succ_add (m n : MyNat) : succ m + n = succ (m + n) := by
 
 
 theorem add_comm (m n : MyNat) : m + n = n + m := by
-  induction n with
-    | zero =>
-      rw [add_zero m]
-      rw [zero_add m]
-    | succ d ih=>
-      rw [add_succ]
-      rw [ih]
-      rw [<-succ_add]
+  apply mynat_induction (P := fun n => m + n = n + m)
+  · rw [add_zero m]
+    rw [zero_add m]
+  · intro d ih
+    rw [add_succ]
+    rw [ih]
+    rw [<-succ_add]
 
 theorem add_assoc (a b c : MyNat) : (a + b) + c = a + (b + c) := by
 induction c with
@@ -87,14 +94,12 @@ induction c with
       rw [hd]
 
 
-
-instance : Std.Associative MyNat add where
+instance : Std.Associative (α := MyNat) (· + ·) where
   assoc := add_assoc
 
-instance : Std.Commutative MyNat add where
+instance : Std.Commutative (α := MyNat) (· + ·) where
   comm := add_comm
 
 
-
 example (a b c : MyNat) : (a + (b + c)) = ((a + b) + c) := by
-  ac_rfl[add]
+  ac_rfl
