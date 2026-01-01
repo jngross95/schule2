@@ -408,5 +408,16 @@ theorem tt {G : Type} [g : DivInvMonoid G] (a : G) :
   exact inv_eq_one_div a
 
 
+example : ∀ m n : Nat, Even n → Even (m * n) := by
+  -- Say `m` and `n` are natural numbers, and assume `n = 2 * k`.
+  rintro m n ⟨k, hk⟩
+  -- We need to prove `m * n` is twice a natural number. Let's show it's twice `m * k`.
+  use m * k
+  -- Substitute for `n`,
+  rw [hk]
+  -- and now it's obvious.
+  ring
+
+
 
 end Schule
