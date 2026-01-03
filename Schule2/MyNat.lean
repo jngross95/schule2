@@ -56,27 +56,22 @@ theorem zero_add (m : MyNat) : 0 + m = m := by
   apply mynat_induction (P := fun m => 0 + m = m)
   · rfl
   · intro m ia
-    rw [add_succ]
-    rw [ia]
+    rw [add_succ, ia]
 
 theorem succ_add (m n : MyNat) : succ m + n = succ (m + n) := by
   apply mynat_induction (P := fun n => succ m + n = succ (m + n))
   · repeat rw [add_zero]
   · intro d hd
-    rw [add_succ]
-    rw [hd]
-    rw [add_succ]
+    rw [add_succ, hd, add_succ]
 
-
+--add kommutativgesetz
 theorem add_comm (m n : MyNat) : m + n = n + m := by
   apply mynat_induction (P := fun n => m + n = n + m)
-  · rw [add_zero m]
-    rw [zero_add m]
+  · rw [add_zero m, zero_add m]
   · intro d ih
-    rw [add_succ]
-    rw [ih]
-    rw [<-succ_add]
+    rw [add_succ, ih, <-succ_add]
 
+--add assoziativgesetz
 theorem add_assoc (a b c : MyNat) : (a + b) + c = a + (b + c) := by
 induction c with
   | zero =>
@@ -86,11 +81,12 @@ induction c with
       rw [hd]
 
 
+instance : Std.Commutative (α := MyNat) (· + ·) where
+  comm := add_comm
 instance : Std.Associative (α := MyNat) (· + ·) where
   assoc := add_assoc
 
-instance : Std.Commutative (α := MyNat) (· + ·) where
-  comm := add_comm
+
 
 
 example (a b c : MyNat) : a + (b + c) = (c + b) + a := by
@@ -106,14 +102,14 @@ instance : HMul MyNat MyNat MyNat where
 theorem mul_zero (m : MyNat) : m * 0 = 0 := by
   rfl
 
+
 theorem mul_succ (m n : MyNat) : m * succ n = m + m * n := by
   rfl
+
 
 theorem add_succ2 (m n : MyNat) :  succ n + m = n + succ m := by
   calc succ n + m = succ (n + m) := by rw [succ_add]
                 _ = n + succ m := by rw [add_succ]
-
-
 
 
 theorem succ_mul (m n : MyNat) : (succ n) * m = n * m + m := by
@@ -129,22 +125,48 @@ theorem succ_mul (m n : MyNat) : (succ n) * m = n * m + m := by
                            _ = n * (succ m) + (succ m) := by rw [mul_succ]
 
 
-
-
 theorem zero_mul (m : MyNat) : 0 * m = 0 := by
   apply mynat_induction (P := fun m => 0 * m = 0)
   · rfl
   · intro m ia
-    rw [mul_succ]
-    rw [ia]
-    rw [add_zero]
+    rw [mul_succ, ia, add_zero]
 
+--mult. kommutativgesetz
 theorem mul_comm (m n : MyNat) : m * n = n * m := by
   apply mynat_induction (P := fun n => m * n = n * m)
-  · rw [mul_zero m]
-    rw [zero_mul m]
+  · rw [mul_zero m, zero_mul m]
   · intro d ih
-    rw [mul_succ]
-    rw [ih]
-    rw [add_comm]
-    rw [succ_mul]
+    rw [mul_succ, ih, add_comm, succ_mul]
+
+
+--mult. distributivgesetz
+theorem add_mul (a b c: MyNat) : a * (b + c) = a*b + a*c := by
+  apply mynat_induction (P := fun a => a * (b + c) = a*b + a*c)
+  · rw [zero_mul (b+c), zero_mul b, zero_mul c, add_zero]
+  · intro aa ih
+    calc aa.succ * (b + c) = aa * (b + c) + (b + c)       := by rw [succ_mul]
+                      _ = (aa*b + aa*c) + (b + c)     := by rw [ih]
+                      _ = (aa*b + b) + (aa*c + c)     := by ac_rfl
+                      _ = aa.succ * b + aa.succ * c   := by rw [succ_mul, succ_mul]
+
+--mult. assoziativgesetz
+theorem mul_assoc (a b c : MyNat) : a * b * c = a * (b * c) := by
+  apply mynat_induction (P := fun c => a * b * c = a * (b * c))
+  · rw [mul_zero b]
+    rw [mul_zero (a*b)]
+    rw [mul_zero a]
+  · intro d ih
+    calc a * b * d.succ = a * b + a * b * d      := by rw [mul_succ]
+                      _ = a * b + a * (b * d)    := by rw [ih]
+                      _ = a * (b + b*d)          := by rw [<-add_mul a b (b*d)]
+                      _ = a * (b * d.succ)       := by rw [mul_succ]
+
+
+instance : Std.Commutative (α := MyNat) (· * ·) where
+  comm := mul_comm
+
+instance : Std.Associative (α := MyNat) (· * ·) where
+  assoc := mul_assoc
+
+example (a b c : MyNat) : a * (b * c) = (c * b) * a := by
+  ac_rfl
