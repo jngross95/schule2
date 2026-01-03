@@ -1,11 +1,20 @@
+import Mathlib.Algebra.Ring.Basic
+import Mathlib.Tactic.Ring
+
+#check CommSemiring
+
 inductive MyNat where
   | zero : MyNat
   | succ : MyNat → MyNat
 
-open MyNat
+
+namespace MyNat
+--open MyNat
+
 
 instance : Zero MyNat where
   zero := zero
+
 
 --axiom1
 theorem zero_mynat : zero = (0: MyNat) := by
@@ -16,16 +25,16 @@ theorem succ_my_nat (n : MyNat) : ∃m, m = succ n := by
  exact ⟨succ n, rfl⟩
 
 --axiom3
-theorem zero_not_succ (n : MyNat) : succ n ≠ zero := by
-  intro h
-  cases h
+--theorem zero_not_succ (n : MyNat) : succ n ≠ zero := by
+--  intro h
+--  cases h
 
 --axiom4
-theorem succ_injective (m n : MyNat) :
-     succ m = succ n → m = n := by
-  intro h
-  cases h
-  rfl
+--theorem succ_injective (m n : MyNat) :
+--     succ m = succ n → m = n := by
+--  intro h
+--  cases h
+--  rfl
 
 --axiom5
 theorem mynat_induction
@@ -42,9 +51,8 @@ def add : MyNat → MyNat → MyNat
   | m, zero => m
   | m, succ n => succ (add m n)
 
-instance : HAdd MyNat MyNat MyNat where
-  hAdd := add
-
+instance : Add MyNat  where
+  add := add
 
 theorem add_zero (m : MyNat) : m + 0 = m := by
   rfl
@@ -140,7 +148,7 @@ theorem mul_comm (m n : MyNat) : m * n = n * m := by
 
 
 --mult. distributivgesetz
-theorem add_mul (a b c: MyNat) : a * (b + c) = a*b + a*c := by
+theorem left_distrib (a b c : MyNat) : a * (b + c) = a*b + a*c := by
   apply mynat_induction (P := fun a => a * (b + c) = a*b + a*c)
   · rw [zero_mul (b+c), zero_mul b, zero_mul c, add_zero]
   · intro aa ih
@@ -148,6 +156,12 @@ theorem add_mul (a b c: MyNat) : a * (b + c) = a*b + a*c := by
                       _ = (aa*b + aa*c) + (b + c)     := by rw [ih]
                       _ = (aa*b + b) + (aa*c + c)     := by ac_rfl
                       _ = aa.succ * b + aa.succ * c   := by rw [succ_mul, succ_mul]
+
+
+theorem right_distrib (a b c : MyNat) : (a + b) * c  = a*c + b*c := by
+  rw [mul_comm (a + b) c, mul_comm a c, mul_comm b c]
+  rw [left_distrib c a b]
+
 
 --mult. assoziativgesetz
 theorem mul_assoc (a b c : MyNat) : a * b * c = a * (b * c) := by
@@ -158,9 +172,18 @@ theorem mul_assoc (a b c : MyNat) : a * b * c = a * (b * c) := by
   · intro d ih
     calc a * b * d.succ = a * b + a * b * d      := by rw [mul_succ]
                       _ = a * b + a * (b * d)    := by rw [ih]
-                      _ = a * (b + b*d)          := by rw [<-add_mul a b (b*d)]
+                      _ = a * (b + b*d)          := by rw [<-left_distrib a b (b*d)]
                       _ = a * (b * d.succ)       := by rw [mul_succ]
 
+
+
+
+theorem mul_one (m : MyNat) : m * succ 0 = m := by
+  rfl
+
+theorem one_mul (m : MyNat) : succ 0 * m = m := by
+  rw[mul_comm]
+  rfl
 
 instance : Std.Commutative (α := MyNat) (· * ·) where
   comm := mul_comm
@@ -170,3 +193,31 @@ instance : Std.Associative (α := MyNat) (· * ·) where
 
 example (a b c : MyNat) : a * (b * c) = (c * b) * a := by
   ac_rfl
+
+
+instance : CommSemiring MyNat := {
+  zero := 0
+  one := succ 0
+  add := (· + ·)
+  mul := (· * ·)
+  add_comm := add_comm
+  add_assoc := add_assoc
+  zero_add := zero_add
+  add_zero := add_zero
+  mul_comm := mul_comm
+  mul_assoc := mul_assoc
+  zero_mul := zero_mul
+  mul_zero := mul_zero
+  one_mul := one_mul
+  mul_one := mul_one
+  left_distrib := left_distrib
+  right_distrib := right_distrib
+  nsmul := nsmulRec
+  }
+
+
+example (a b c : MyNat) : a + a * (b + c)+ c+c  = a *(b+c+ 1) + c*2 := by
+  ring
+
+
+end MyNat
