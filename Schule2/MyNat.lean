@@ -1,5 +1,6 @@
 import Mathlib.Algebra.Ring.Basic
 import Mathlib.Tactic.Ring
+import LeanCopilot
 
 #check CommSemiring
 
@@ -145,7 +146,6 @@ theorem mul_comm (m n : MyNat) : m * n = n * m := by
   · rw [mul_zero m, zero_mul m]
   · intro d ih
     rw [mul_succ, ih, add_comm, succ_mul]
-
 
 --mult. distributivgesetz
 theorem left_distrib (a b c : MyNat) : a * (b + c) = a*b + a*c := by
